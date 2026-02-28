@@ -22,6 +22,7 @@ namespace Audioplayer
         String filePath;
         List<String> audioPathsFull = new List<String>();
         List<String> audioPathsShort = new List<String>();
+        String currentAudioShortName = "";
     
         public MainWindow()
         {
@@ -31,7 +32,10 @@ namespace Audioplayer
         // начало воспроизведения
         void Play_Click(object sender, RoutedEventArgs e)
         {
+            int selectedIndex = audioList.SelectedIndex;
+            myMediaElement.Source = new Uri(audioPathsFull[selectedIndex]);
             myMediaElement.Play();
+            headerBlock.Text = audioPathsShort[selectedIndex];
         }
         // пауза
         void Pause_Click(object sender, RoutedEventArgs e)
@@ -52,12 +56,12 @@ namespace Audioplayer
         // открытие файла
         void Media_MediaOpened(object sender, RoutedEventArgs e)
         {
-            headerBlock.Text = myMediaElement.Name;
+            //headerBlock.Text = myMediaElement.Name;
         }
         // окончание воспроизведения
         void Media_MediaEnded(object sender, RoutedEventArgs e)
         {
-            headerBlock.Text = "Воспроизведение завершено";
+            //headerBlock.Text = "Воспроизведение завершено";
         }
 
         private void chooseFile_Click(object sender, RoutedEventArgs e)
@@ -89,6 +93,7 @@ namespace Audioplayer
                 {
                     MessageBox.Show("Файлы отсутствуют");
                 }
+                audioList.SelectedIndex = 0;
             }
             else
             {
@@ -100,10 +105,14 @@ namespace Audioplayer
         // Выбор файла из списка
         private void audioList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            myMediaElement.Stop();
             int selectedIndex = audioList.SelectedIndex;
-            headerBlock.Text = audioPathsShort[selectedIndex];
+            
             myMediaElement.Source = new Uri(audioPathsFull[selectedIndex]);
-            //myMediaElement.Stop();
+            currentAudioShortName = audioPathsShort[selectedIndex];
+            myMediaElement.Play();
+            headerBlock.Text = audioPathsShort[selectedIndex];
+
         }
     }
 }
