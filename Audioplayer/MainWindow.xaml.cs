@@ -20,6 +20,8 @@ namespace Audioplayer
     public partial class MainWindow : Window
     {
         String filePath;
+        List<String> audioPathsFull = new List<String>();
+        List<String> audioPathsShort = new List<String>();
         public MainWindow()
         {
             InitializeComponent();
@@ -60,15 +62,32 @@ namespace Audioplayer
         private void chooseFile_Click(object sender, RoutedEventArgs e)
         {
             String shortFileName = "";
+            audioPathsShort.Clear();
+            audioPathsFull.Clear();
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Multiselect = true;
             if (openFileDialog.ShowDialog() == true)
             {
                 filePath = openFileDialog.FileName;
                 shortFileName = openFileDialog.SafeFileName;
-
             }
-            myMediaElement.Source = new Uri(filePath);
-            headerBlock.Text= shortFileName;
+
+            foreach (string fileName in openFileDialog.SafeFileNames)
+            {
+                audioPathsShort.Add(fileName);
+                audioList.Items.Add(fileName);
+            }
+
+            foreach (string fileName in openFileDialog.FileNames)
+            {
+                audioPathsFull.Add(fileName);
+                
+            }
+            
+            myMediaElement.Source = new Uri(audioPathsFull[0]);
+            headerBlock.Text = audioPathsShort[0];
+
+
         }
     }
 }
