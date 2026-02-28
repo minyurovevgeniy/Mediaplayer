@@ -22,6 +22,7 @@ namespace Audioplayer
         String filePath;
         List<String> audioPathsFull = new List<String>();
         List<String> audioPathsShort = new List<String>();
+    
         public MainWindow()
         {
             InitializeComponent();
@@ -68,10 +69,10 @@ namespace Audioplayer
                 audioPathsShort.Clear();
                 audioPathsFull.Clear();
 
-                foreach (string fileName in openFileDialog.SafeFileNames)
+                foreach (string safeFileName in openFileDialog.SafeFileNames)
                 {
-                    audioPathsShort.Add(fileName);
-                    audioList.Items.Add(fileName);
+                    audioPathsShort.Add(safeFileName);
+                    audioList.Items.Add(safeFileName);
                 }
 
                 foreach (string fileName in openFileDialog.FileNames)
@@ -94,10 +95,15 @@ namespace Audioplayer
                 MessageBox.Show("Файл не выбран");
 
             }
+        }
 
-            
-
-
+        // Выбор файла из списка
+        private void audioList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int selectedIndex = audioList.SelectedIndex;
+            headerBlock.Text = audioPathsShort[selectedIndex];
+            myMediaElement.Source = new Uri(audioPathsFull[selectedIndex]);
+            //myMediaElement.Stop();
         }
     }
 }
