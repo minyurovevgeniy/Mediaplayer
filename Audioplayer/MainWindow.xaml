@@ -6,21 +6,26 @@
         xmlns:local="clr-namespace:Audioplayer"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid >
-        <StackPanel>
-            <TextBlock x:Name="headerBlock" HorizontalAlignment="Center" />
-            <MediaElement x:Name="myMediaElement"  Source="..\..\..\example.mp3"
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="347*"></RowDefinition>
+            <RowDefinition Height="87*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Button Content="Open" x:Name="chooseFile" Grid.Column="0" Grid.Row="0" Click="chooseFile_Click" Margin="10,272,10,10" />
+        <TextBlock Grid.Column="1" Grid.Row="0" x:Name="headerBlock" TextWrapping="WrapWithOverflow" Grid.ColumnSpan="2" Margin="40,0,6,0" />
+        <MediaElement  x:Name="myMediaElement" 
                   MediaFailed="Media_MediaFailed"
                   MediaOpened="Media_MediaOpened"
                   MediaEnded="Media_MediaEnded" 
                   LoadedBehavior="Manual" 
-              UnloadedBehavior="Manual" />
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Content="Play" Click="Play_Click" Margin="10" />
-                <Button Content="Pause" Click="Pause_Click" Margin="10"/>
-                <Button Content="Stop" Click="Stop_Click" Margin="10" />
-            </StackPanel>
-        </StackPanel>
+              UnloadedBehavior="Manual" Grid.ColumnSpan="2" Margin="0,0,266,0" />
+        <Button Grid.Column="0" Grid.Row="1" Content="Play" Click="Play_Click" Margin="10,10,10,10" />
+        <Button Grid.Column="1" Grid.Row="1" Content="Pause" Click="Pause_Click" Margin="10,10,10,10"/>
+        <Button Content="Stop" Grid.Column="2" Grid.Row="1" Click="Stop_Click" Margin="10,10,10,10" />
     </Grid>
 </Window>

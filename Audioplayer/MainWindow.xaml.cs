@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography;
+﻿using Microsoft.Win32;
+using System.IO.Enumeration;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,6 +19,7 @@ namespace Audioplayer
     /// </summary>
     public partial class MainWindow : Window
     {
+        String filePath;
         public MainWindow()
         {
             InitializeComponent();
@@ -46,12 +49,26 @@ namespace Audioplayer
         // открытие файла
         void Media_MediaOpened(object sender, RoutedEventArgs e)
         {
-            headerBlock.Text = myMediaElement;
+            headerBlock.Text = myMediaElement.Name;
         }
         // окончание воспроизведения
         void Media_MediaEnded(object sender, RoutedEventArgs e)
         {
             headerBlock.Text = "Воспроизведение завершено";
+        }
+
+        private void chooseFile_Click(object sender, RoutedEventArgs e)
+        {
+            String shortFileName = "";
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                filePath = openFileDialog.FileName;
+                shortFileName = openFileDialog.SafeFileName;
+
+            }
+            myMediaElement.Source = new Uri(filePath);
+            headerBlock.Text= shortFileName;
         }
     }
 }
