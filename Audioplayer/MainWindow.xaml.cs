@@ -61,31 +61,41 @@ namespace Audioplayer
 
         private void chooseFile_Click(object sender, RoutedEventArgs e)
         {
-            String shortFileName = "";
-            audioPathsShort.Clear();
-            audioPathsFull.Clear();
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = true;
             if (openFileDialog.ShowDialog() == true)
             {
-                filePath = openFileDialog.FileName;
-                shortFileName = openFileDialog.SafeFileName;
-            }
+                audioPathsShort.Clear();
+                audioPathsFull.Clear();
 
-            foreach (string fileName in openFileDialog.SafeFileNames)
-            {
-                audioPathsShort.Add(fileName);
-                audioList.Items.Add(fileName);
-            }
+                foreach (string fileName in openFileDialog.SafeFileNames)
+                {
+                    audioPathsShort.Add(fileName);
+                    audioList.Items.Add(fileName);
+                }
 
-            foreach (string fileName in openFileDialog.FileNames)
-            {
-                audioPathsFull.Add(fileName);
+                foreach (string fileName in openFileDialog.FileNames)
+                {
+                    audioPathsFull.Add(fileName);
+                }
                 
+                if (audioPathsShort.Count > 0 && audioPathsFull.Count>0)
+                {
+                    myMediaElement.Source = new Uri(audioPathsFull[0]);
+                    headerBlock.Text = audioPathsShort[0];
+                }
+                else
+                {
+                    MessageBox.Show("Файлы отсутствуют");
+                }
             }
+            else
+            {
+                MessageBox.Show("Файл не выбран");
+
+            }
+
             
-            myMediaElement.Source = new Uri(audioPathsFull[0]);
-            headerBlock.Text = audioPathsShort[0];
 
 
         }
