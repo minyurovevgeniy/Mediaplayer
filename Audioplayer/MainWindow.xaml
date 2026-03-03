@@ -27,6 +27,12 @@
         <Button Grid.Column="0" Grid.Row="1" Content="Воспроизвести" Click="Play_Click" Margin="10,10,10,10" />
         <Button Grid.Column="1" Grid.Row="1" Content="Пауза" Click="Pause_Click" Margin="10,10,10,10"/>
         <Button Content="Стоп" Grid.Column="2" Grid.Row="1" Click="Stop_Click" Margin="10,10,10,10" />
-        <ListBox x:Name="audioList" Grid.Column="2" Grid.Row="0" SelectionChanged="audioList_SelectionChanged"/>
+        <ListBox x:Name="audioList" Grid.Column="2" Grid.Row="0" SelectionChanged="audioList_SelectionChanged" Panel.ZIndex="-1" IsManipulationEnabled="True" ScrollViewer.CanContentScroll="True">
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem x:Name="delete" Header="Удалить" Click="Delete" IsManipulationEnabled="True" />
+                </ContextMenu>
+            </ListBox.ContextMenu>
+        </ListBox>
     </Grid>
 </Window>

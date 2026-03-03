@@ -19,14 +19,16 @@ namespace Audioplayer
     /// </summary>
     public partial class MainWindow : Window
     {
-        String filePath;
         List<String> audioPathsFull = new List<String>();
         List<String> audioPathsShort = new List<String>();
-        String currentAudioShortName = "";
-    
+        string currentAudioShortName;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            audioPathsShort.Clear();
+            audioPathsFull.Clear();
         }
 
         // начало воспроизведения
@@ -70,8 +72,7 @@ namespace Audioplayer
             openFileDialog.Multiselect = true;
             if (openFileDialog.ShowDialog() == true)
             {
-                audioPathsShort.Clear();
-                audioPathsFull.Clear();
+                
 
                 foreach (string safeFileName in openFileDialog.SafeFileNames)
                 {
@@ -83,8 +84,8 @@ namespace Audioplayer
                 {
                     audioPathsFull.Add(fileName);
                 }
-                
-                if (audioPathsShort.Count > 0 && audioPathsFull.Count>0)
+
+                if (audioPathsShort.Count > 0 && audioPathsFull.Count > 0)
                 {
                     myMediaElement.Source = new Uri(audioPathsFull[0]);
                     headerBlock.Text = audioPathsShort[0];
@@ -105,14 +106,32 @@ namespace Audioplayer
         // Выбор файла из списка
         private void audioList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            myMediaElement.Stop();
-            int selectedIndex = audioList.SelectedIndex;
-            
-            myMediaElement.Source = new Uri(audioPathsFull[selectedIndex]);
-            currentAudioShortName = audioPathsShort[selectedIndex];
-            myMediaElement.Play();
-            headerBlock.Text = audioPathsShort[selectedIndex];
+            if (audioList.SelectedIndex >= 0)
+            {
+                myMediaElement.Stop();
+                int selectedIndex = audioList.SelectedIndex;
 
+                myMediaElement.Source = new Uri(audioPathsFull[selectedIndex]);
+                currentAudioShortName = audioPathsShort[selectedIndex];
+                myMediaElement.Play();
+                headerBlock.Text = audioPathsShort[selectedIndex];
+            }
+            else
+            {
+                MessageBox.Show("Выделите аудиозапись");
+            }
+        }
+
+        private void Delete(object sender, RoutedEventArgs e)
+        {
+            //myMediaElement.Stop();
+            int selectedIndex = audioList.SelectedIndex;
+            headerBlock.Text = "";
+
+            audioPathsFull.RemoveAt(selectedIndex);
+            audioPathsShort.RemoveAt(selectedIndex);
+            audioList.Items.RemoveAt(selectedIndex);
+            
         }
     }
 }
