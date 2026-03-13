@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
+using NAudio.Wave;
 using System.IO.Enumeration;
+using System.Media;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
@@ -22,10 +24,13 @@ namespace Audioplayer
         List<String> audioPathsFull = new List<String>();
         List<String> audioPathsShort = new List<String>();
         string currentAudioShortName;
+        public WaveOutEvent outputDevice;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            outputDevice = new WaveOutEvent();
 
             audioPathsShort.Clear();
             audioPathsFull.Clear();
@@ -35,20 +40,33 @@ namespace Audioplayer
         void Play_Click(object sender, RoutedEventArgs e)
         {
             int selectedIndex = audioList.SelectedIndex;
-            myMediaElement.Source = new Uri(audioPathsFull[selectedIndex]);
-            myMediaElement.Play();
+            AudioFileReader audioFile = new AudioFileReader(audioPathsFull[selectedIndex]);
+            slider.Maximum = audioFile.TotalTime.TotalSeconds;
+            Task.Run(() => {
+                
+                outputDevice.Init(audioFile);
+                outputDevice.Play(); // Воспроизводим
+
+            });
             headerBlock.Text = audioPathsShort[selectedIndex];
+            audioFile.
+            while (outputDevice.PlaybackState == PlaybackState.Playing)
+            {
+                slider.Value = audioFile.CurrentTime.Seconds;
+            }
         }
         // пауза
         void Pause_Click(object sender, RoutedEventArgs e)
         {
-            if (myMediaElement.CanPause)
-                myMediaElement.Pause();
+            if (outputDevice.PlaybackState == PlaybackState.Playing)
+            {
+                outputDevice.Pause();
+            }
         }
         // остановка
         void Stop_Click(object sender, RoutedEventArgs e)
         {
-            myMediaElement.Stop();
+            outputDevice.Stop();
         }
         // если открытие файла завершилось с ошибкой
         void Media_MediaFailed(object sender, ExceptionRoutedEventArgs e)
@@ -71,9 +89,7 @@ namespace Audioplayer
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = true;
             if (openFileDialog.ShowDialog() == true)
-            {
-                
-
+            { 
                 foreach (string safeFileName in openFileDialog.SafeFileNames)
                 {
                     audioPathsShort.Add(safeFileName);
@@ -87,7 +103,6 @@ namespace Audioplayer
 
                 if (audioPathsShort.Count > 0 && audioPathsFull.Count > 0)
                 {
-                    myMediaElement.Source = new Uri(audioPathsFull[0]);
                     headerBlock.Text = audioPathsShort[0];
                 }
                 else
@@ -108,12 +123,12 @@ namespace Audioplayer
         {
             if (audioList.SelectedIndex >= 0)
             {
-                myMediaElement.Stop();
+                outputDevice.Stop();
                 int selectedIndex = audioList.SelectedIndex;
 
-                myMediaElement.Source = new Uri(audioPathsFull[selectedIndex]);
+                outputDevice.Init(new AudioFileReader(audioPathsFull[selectedIndex]));
                 currentAudioShortName = audioPathsShort[selectedIndex];
-                myMediaElement.Play();
+                //outputDevice.Play();
                 headerBlock.Text = audioPathsShort[selectedIndex];
             }
             else
@@ -124,14 +139,22 @@ namespace Audioplayer
 
         private void Delete(object sender, RoutedEventArgs e)
         {
-            //myMediaElement.Stop();
             int selectedIndex = audioList.SelectedIndex;
             headerBlock.Text = "";
 
             audioPathsFull.RemoveAt(selectedIndex);
             audioPathsShort.RemoveAt(selectedIndex);
             audioList.Items.RemoveAt(selectedIndex);
-            
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            int selectedIndex = audioList.SelectedIndex;
+            outputDevice.Stop();
+            AudioFileReader moved = new AudioFileReader(audioPathsFull[selectedIndex]);
+            moved.CurrentTime = moved.CurrentTime.Add(TimeSpan.FromSeconds(10));
+            outputDevice.Init(moved);
+            outputDevice.Play();
         }
     }
 }

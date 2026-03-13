@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Audioplayer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="500" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="347*"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
             <RowDefinition Height="87*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -18,15 +19,12 @@
         </Grid.ColumnDefinitions>
         <Button Content="Открыть" x:Name="chooseFile" Grid.Column="0" Grid.Row="0" Click="chooseFile_Click" Margin="10,272,10,10" />
         <TextBlock Grid.Column="1" Grid.Row="0" x:Name="headerBlock" TextWrapping="WrapWithOverflow" Margin="40,0,40,0" />
-        <MediaElement  x:Name="myMediaElement" 
-                  MediaFailed="Media_MediaFailed"
-                  MediaOpened="Media_MediaOpened"
-                  MediaEnded="Media_MediaEnded" 
-                  LoadedBehavior="Manual" 
-              UnloadedBehavior="Manual" Grid.ColumnSpan="2" Margin="0,0,266,0" />
-        <Button Grid.Column="0" Grid.Row="1" Content="Воспроизвести" Click="Play_Click" Margin="10,10,10,10" />
-        <Button Grid.Column="1" Grid.Row="1" Content="Пауза" Click="Pause_Click" Margin="10,10,10,10"/>
-        <Button Content="Стоп" Grid.Column="2" Grid.Row="1" Click="Stop_Click" Margin="10,10,10,10" />
+        <Slider x:Name="slider" Grid.Row="1" Grid.ColumnSpan="3" Value="0" Minimum="0" Maximum="100" SelectionStart="0" Height="30" 
+        IsSelectionRangeEnabled="True" ValueChanged="Slider_ValueChanged" Margin="20,0,20,0" />
+        
+        <Button Grid.Column="0" Grid.Row="2" Content="Воспроизвести" Click="Play_Click" Margin="10,10,10,10" />
+        <Button Grid.Column="1" Grid.Row="2" Content="Пауза" Click="Pause_Click" Margin="10,10,10,10"/>
+        <Button Content="Стоп" Grid.Column="2" Grid.Row="2" Click="Stop_Click" Margin="10,10,10,10" />
         <ListBox x:Name="audioList" Grid.Column="2" Grid.Row="0" SelectionChanged="audioList_SelectionChanged" Panel.ZIndex="-1" IsManipulationEnabled="True" ScrollViewer.CanContentScroll="True">
             <ListBox.ContextMenu>
                 <ContextMenu>
