@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Microsoft.VisualBasic.Devices;
+using Microsoft.Win32;
 using NAudio.Wave;
 using System.IO;
 using System.IO.Enumeration;
@@ -231,6 +232,13 @@ namespace Audioplayer
             using (StreamReader reader = new StreamReader("playlist.xml"))
             {
                 audiofiles = (List<Audiofile>)serializer.Deserialize(reader);
+            }
+
+            audioList.Items.Clear();
+
+            foreach (Audiofile audio in audiofiles)
+            {
+                audioList.Items.Add(audio.name);
             }
         }
 
