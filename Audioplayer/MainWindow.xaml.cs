@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 
 namespace Audioplayer
@@ -36,15 +37,15 @@ namespace Audioplayer
         private System.Timers.Timer aTimer;
 
         private MediaPlayer mediaPlayer;
-        private double totalSeconds;
+        
         double totalTime;
-        bool canPlay = true;
+        
 
         public MainWindow()
         {
             InitializeComponent();
             audiofiles.Clear();
-            
+
             mediaPlayer = new MediaPlayer();
             mediaPlayer.MediaOpened += MediaPlayer_MediaOpened;
             mediaPlayer.MediaEnded += MediaPlayer_MediaEnded;
@@ -59,9 +60,9 @@ namespace Audioplayer
             slider.Minimum = 0;
             slider.Maximum = (int)totalTime;
             slider.Value = 0;
-        }    
+        }
 
-        
+
 
         private void MediaPlayer_MediaEnded(object? sender, EventArgs e)
         {
@@ -106,37 +107,36 @@ namespace Audioplayer
         // пауза
         void Pause_Click(object sender, RoutedEventArgs e)
         {
-           
+
         }
         // остановка
         void Stop_Click(object sender, RoutedEventArgs e)
         {
-            
+
         }
         // если открытие файла завершилось с ошибкой
         void MediaPlayer_MediaFailed(object? sender, ExceptionEventArgs e)
         {
             headerBlock.Text = "Ошибка открытия файла";
         }
-        
+
         // окончание воспроизведения
         void Media_MediaEnded(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void chooseFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = true;
-            
+
             if (openFileDialog.ShowDialog() == true)
             {
                 int fileCount = openFileDialog.FileNames.Length;
                 for (int i = 0; i < fileCount; i++)
                 {
                     audiofiles.Add(new Audiofile(openFileDialog.SafeFileNames[i], openFileDialog.FileNames[i]));
-
                     audioList.Items.Add(openFileDialog.SafeFileNames[i]);
                 }
                 if (audiofiles.Count > 0)
@@ -162,10 +162,7 @@ namespace Audioplayer
             if (audioList.SelectedIndex >= 0)
             {
                 int selectedIndex = audioList.SelectedIndex;
-
-                
                 currentAudioShortName = audiofiles[selectedIndex].name;
-                
                 headerBlock.Text = audiofiles[selectedIndex].name;
             }
             else
@@ -185,7 +182,7 @@ namespace Audioplayer
 
         private void slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            
+
         }
 
         private void Grid_PreviewDragOver(object sender, DragEventArgs e)
@@ -233,9 +230,28 @@ namespace Audioplayer
             
         }
 
-        private void SavePlaylistMenuItem_Click(object sender, RoutedEventArgs e)
+        public void SavePlaylistMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
+            // Create the serializer for a List of Person objects
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Audiofile>));
 
+            // 2. Configure properties
+            saveFileDialog.Filter = "XML files (*.xml)|*.xml";
+            saveFileDialog.FilterIndex = 1;
+            saveFileDialog.RestoreDirectory = true;
+            saveFileDialog.FileName = "playlist"; // Default file name
+
+            // 3. Show the dialog and check the result
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                // Write the list to a file
+                using (StreamWriter writer = new StreamWriter(saveFileDialog.FileName))
+                {
+                    serializer.Serialize(writer, audiofiles);
+                }
+            }
         }
+
     }
 }

@@ -9,7 +9,11 @@ namespace Audioplayer
         public String name;
         public String path;
 
-
+        public Audiofile()
+        {
+            this.name = "";
+            this.path = "";
+        }
 
         public Audiofile(String name, String path)
         {
