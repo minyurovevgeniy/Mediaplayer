@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfAudiofile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Audiofile>
+    <name>example.mp3</name>
+    <path>C:\Development\WPF\Mediaplayer\Audioplayer\example.mp3</path>
+  </Audiofile>
+  <Audiofile>
+    <name>example2.mp3</name>
+    <path>C:\Development\WPF\Mediaplayer\Audioplayer\example2.mp3</path>
+  </Audiofile>
+</ArrayOfAudiofile>

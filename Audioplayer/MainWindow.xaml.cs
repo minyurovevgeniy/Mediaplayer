@@ -228,18 +228,30 @@ namespace Audioplayer
         private void OpenPlaylistMenuItem_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            XmlSerializer serializer = new XmlSerializer(typeof(List<Audiofile>));
-            using (StreamReader reader = new StreamReader("playlist.xml"))
+            openFileDialog.Multiselect = false;
+
+            if (openFileDialog.ShowDialog() == true)
             {
-                audiofiles = (List<Audiofile>)serializer.Deserialize(reader);
+                XmlSerializer serializer = new XmlSerializer(typeof(List<Audiofile>));
+                using (StreamReader reader = new StreamReader(openFileDialog.FileName))
+                {
+                    audiofiles = (List<Audiofile>)serializer.Deserialize(reader);
+                }
+
+                audioList.Items.Clear();
+
+                foreach (Audiofile audio in audiofiles)
+                {
+                    audioList.Items.Add(audio.name);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Файл не выбран");
+
             }
 
-            audioList.Items.Clear();
-
-            foreach (Audiofile audio in audiofiles)
-            {
-                audioList.Items.Add(audio.name);
-            }
+            
         }
 
         public void SavePlaylistMenuItem_Click(object sender, RoutedEventArgs e)
