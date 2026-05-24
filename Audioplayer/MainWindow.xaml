@@ -41,6 +41,7 @@
             </MenuItem>
             <MenuItem Header="Плейлист">
                 <MenuItem Header="Открыть" Click="OpenPlaylistMenuItem_Click"/>
+                <MenuItem Header="Сохранить" Click="SavePlaylistMenuItem_Click"/>
                 <MenuItem Header="Закрыть"/>
             </MenuItem>
         </Menu>

@@ -4,9 +4,19 @@ using System.Text;
 
 namespace Audioplayer
 {
-    internal class AudioFile
+    public class Audiofile
     {
-        private String name;
-        private String path;
+        public String name;
+        public String path;
+
+
+
+        public Audiofile(String name, String path)
+        {
+            this.name = name;
+            this.path = path;
+        }
     }
+        
+
 }

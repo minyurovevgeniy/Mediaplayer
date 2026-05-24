@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+//using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -27,8 +28,8 @@ namespace Audioplayer
     /// </summary>
     public partial class MainWindow : Window
     {
-        List<String> audioPathsFull = new List<String>();
-        List<String> audioPathsShort = new List<String>();
+        List<Audiofile> audiofiles = new List<Audiofile>();
+
         string currentAudioShortName;
         public WaveOutEvent outputDevice;
 
@@ -42,8 +43,8 @@ namespace Audioplayer
         public MainWindow()
         {
             InitializeComponent();
-            audioPathsShort.Clear();
-            audioPathsFull.Clear();
+            audiofiles.Clear();
+            
             mediaPlayer = new MediaPlayer();
             mediaPlayer.MediaOpened += MediaPlayer_MediaOpened;
             mediaPlayer.MediaEnded += MediaPlayer_MediaEnded;
@@ -84,7 +85,7 @@ namespace Audioplayer
         {
             int selectedIndex = audioList.SelectedIndex;
 
-            mediaPlayer.Open(new Uri(audioPathsFull[selectedIndex], UriKind.RelativeOrAbsolute));
+            mediaPlayer.Open(new Uri(audiofiles[selectedIndex].path, UriKind.RelativeOrAbsolute));
             mediaPlayer.Play();
 
             aTimer = new System.Timers.Timer(1000);
@@ -93,7 +94,7 @@ namespace Audioplayer
             aTimer.AutoReset = true;
             aTimer.Enabled = true;
 
-            headerBlock.Text = audioPathsShort[selectedIndex];
+            headerBlock.Text = audiofiles[selectedIndex].name;
         }
 
         private static void OnTimedEvent(Object source, ElapsedEventArgs e)
@@ -128,22 +129,19 @@ namespace Audioplayer
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = true;
+            
             if (openFileDialog.ShowDialog() == true)
-            { 
-                foreach (string safeFileName in openFileDialog.SafeFileNames)
+            {
+                int fileCount = openFileDialog.FileNames.Length;
+                for (int i = 0; i < fileCount; i++)
                 {
-                    audioPathsShort.Add(safeFileName);
-                    audioList.Items.Add(safeFileName);
-                }
+                    audiofiles.Add(new Audiofile(openFileDialog.SafeFileNames[i], openFileDialog.FileNames[i]));
 
-                foreach (string fileName in openFileDialog.FileNames)
-                {
-                    audioPathsFull.Add(fileName);
+                    audioList.Items.Add(openFileDialog.SafeFileNames[i]);
                 }
-
-                if (audioPathsShort.Count > 0 && audioPathsFull.Count > 0)
+                if (audiofiles.Count > 0)
                 {
-                    headerBlock.Text = audioPathsShort[0];
+                    headerBlock.Text = audiofiles[0].name;
                 }
                 else
                 {
@@ -163,13 +161,12 @@ namespace Audioplayer
         {
             if (audioList.SelectedIndex >= 0)
             {
-                //outputDevice.Stop();
                 int selectedIndex = audioList.SelectedIndex;
 
-                //outputDevice.Init(new AudioFileReader(audioPathsFull[selectedIndex]));
-                currentAudioShortName = audioPathsShort[selectedIndex];
-                //outputDevice.Play();
-                headerBlock.Text = audioPathsShort[selectedIndex];
+                
+                currentAudioShortName = audiofiles[selectedIndex].name;
+                
+                headerBlock.Text = audiofiles[selectedIndex].name;
             }
             else
             {
@@ -182,18 +179,13 @@ namespace Audioplayer
             int selectedIndex = audioList.SelectedIndex;
             headerBlock.Text = "";
 
-            audioPathsFull.RemoveAt(selectedIndex);
-            audioPathsShort.RemoveAt(selectedIndex);
+            audiofiles.RemoveAt(selectedIndex);
             audioList.Items.RemoveAt(selectedIndex);
         }
 
         private void slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            /*
-            canPlay = false;
-            mediaPlayer.Position = TimeSpan.FromSeconds(slider.Value);
-            canPlay = true;
-            */
+            
         }
 
         private void Grid_PreviewDragOver(object sender, DragEventArgs e)
@@ -213,8 +205,6 @@ namespace Audioplayer
                     if (ext.Equals(".mp3"))
                     {
                         e.Handled = true;
-
-                        
                     }
                 }
             }
@@ -229,12 +219,11 @@ namespace Audioplayer
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                string[] files = e.Data.GetData(DataFormats.FileDrop) as string[];
-                foreach (var file in files)
+                string[] filesNames = e.Data.GetData(DataFormats.FileDrop) as string[];
+                foreach (var file in filesNames)
                 {
-                    audioPathsShort.Add(file);
-                    audioPathsFull.Add(file);
-                    audioList.Items.Add(file);
+                    audiofiles.Add(new Audiofile(System.IO.Path.GetFileName(file), file));
+                    audioList.Items.Add(System.IO.Path.GetFileName(file));
                 }
             }
         }
@@ -242,6 +231,11 @@ namespace Audioplayer
         private void OpenPlaylistMenuItem_Click(object sender, RoutedEventArgs e)
         {
             
+        }
+
+        private void SavePlaylistMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
