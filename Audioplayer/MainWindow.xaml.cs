@@ -1,18 +1,24 @@
 ﻿using Microsoft.Win32;
 using NAudio.Wave;
+using System.IO;
 using System.IO.Enumeration;
 using System.Media;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
+
 
 namespace Audioplayer
 {
@@ -26,62 +32,96 @@ namespace Audioplayer
         string currentAudioShortName;
         public WaveOutEvent outputDevice;
 
+        private System.Timers.Timer aTimer;
+
+        private MediaPlayer mediaPlayer;
+        private double totalSeconds;
+        double totalTime;
+        bool canPlay = true;
+
         public MainWindow()
         {
             InitializeComponent();
-
-            outputDevice = new WaveOutEvent();
-
             audioPathsShort.Clear();
             audioPathsFull.Clear();
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.MediaOpened += MediaPlayer_MediaOpened;
+            mediaPlayer.MediaEnded += MediaPlayer_MediaEnded;
+            mediaPlayer.MediaFailed += MediaPlayer_MediaFailed;
+            totalSeconds = 0;
         }
 
+        private async void MediaPlayer_MediaOpened(object? sender, EventArgs e)
+        {
+            totalTime = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds + mediaPlayer.NaturalDuration.TimeSpan.TotalMinutes * 60;
+            //double TotalMilliseconds = mediaPlayer.NaturalDuration.TimeSpan.TotalMilliseconds;
+            slider.Minimum = 0;
+            slider.Maximum = (int)totalTime;
+            slider.Value = 0;
+        }    
+
+        
+
+        private void MediaPlayer_MediaEnded(object? sender, EventArgs e)
+        {
+            //headerBlock.Text = "Воспроизведение завершено";
+            mediaPlayer.Close();
+            aTimer.Stop();
+            aTimer.Dispose();
+        }
+
+
+        public void CurrentPosition(Object source, ElapsedEventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                slider.Value = mediaPlayer.Position.Seconds + mediaPlayer.Position.Minutes * 60;
+                headerBlock.Text = slider.Value.ToString();
+            });
+        }
         // начало воспроизведения
         void Play_Click(object sender, RoutedEventArgs e)
         {
             int selectedIndex = audioList.SelectedIndex;
-            AudioFileReader audioFile = new AudioFileReader(audioPathsFull[selectedIndex]);
-            slider.Maximum = audioFile.TotalTime.TotalSeconds;
-            Task.Run(() => {
-                
-                outputDevice.Init(audioFile);
-                outputDevice.Play(); // Воспроизводим
 
-            });
+            mediaPlayer.Open(new Uri(audioPathsFull[selectedIndex], UriKind.RelativeOrAbsolute));
+            mediaPlayer.Play();
+
+            aTimer = new System.Timers.Timer(1000);
+            // Hook up the Elapsed event for the timer. 
+            aTimer.Elapsed += CurrentPosition;
+            aTimer.AutoReset = true;
+            aTimer.Enabled = true;
+
             headerBlock.Text = audioPathsShort[selectedIndex];
-            audioFile.
-            while (outputDevice.PlaybackState == PlaybackState.Playing)
-            {
-                slider.Value = audioFile.CurrentTime.Seconds;
-            }
         }
+
+        private static void OnTimedEvent(Object source, ElapsedEventArgs e)
+        {
+            Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
+                              e.SignalTime);
+        }
+
         // пауза
         void Pause_Click(object sender, RoutedEventArgs e)
         {
-            if (outputDevice.PlaybackState == PlaybackState.Playing)
-            {
-                outputDevice.Pause();
-            }
+           
         }
         // остановка
         void Stop_Click(object sender, RoutedEventArgs e)
         {
-            outputDevice.Stop();
+            
         }
         // если открытие файла завершилось с ошибкой
-        void Media_MediaFailed(object sender, ExceptionRoutedEventArgs e)
+        void MediaPlayer_MediaFailed(object? sender, ExceptionEventArgs e)
         {
             headerBlock.Text = "Ошибка открытия файла";
         }
-        // открытие файла
-        void Media_MediaOpened(object sender, RoutedEventArgs e)
-        {
-            //headerBlock.Text = myMediaElement.Name;
-        }
+        
         // окончание воспроизведения
         void Media_MediaEnded(object sender, RoutedEventArgs e)
         {
-            //headerBlock.Text = "Воспроизведение завершено";
+            
         }
 
         private void chooseFile_Click(object sender, RoutedEventArgs e)
@@ -123,10 +163,10 @@ namespace Audioplayer
         {
             if (audioList.SelectedIndex >= 0)
             {
-                outputDevice.Stop();
+                //outputDevice.Stop();
                 int selectedIndex = audioList.SelectedIndex;
 
-                outputDevice.Init(new AudioFileReader(audioPathsFull[selectedIndex]));
+                //outputDevice.Init(new AudioFileReader(audioPathsFull[selectedIndex]));
                 currentAudioShortName = audioPathsShort[selectedIndex];
                 //outputDevice.Play();
                 headerBlock.Text = audioPathsShort[selectedIndex];
@@ -147,14 +187,61 @@ namespace Audioplayer
             audioList.Items.RemoveAt(selectedIndex);
         }
 
-        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            int selectedIndex = audioList.SelectedIndex;
-            outputDevice.Stop();
-            AudioFileReader moved = new AudioFileReader(audioPathsFull[selectedIndex]);
-            moved.CurrentTime = moved.CurrentTime.Add(TimeSpan.FromSeconds(10));
-            outputDevice.Init(moved);
-            outputDevice.Play();
+            /*
+            canPlay = false;
+            mediaPlayer.Position = TimeSpan.FromSeconds(slider.Value);
+            canPlay = true;
+            */
+        }
+
+        private void Grid_PreviewDragOver(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void audioList_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = false;
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = e.Data.GetData(DataFormats.FileDrop) as string[];
+                foreach (var file in files)
+                {
+                    var ext = System.IO.Path.GetExtension(file);
+                    if (ext.Equals(".mp3"))
+                    {
+                        e.Handled = true;
+
+                        
+                    }
+                }
+            }
+        }
+
+        private void audioList_PreviewDrop(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void audioList_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = e.Data.GetData(DataFormats.FileDrop) as string[];
+                foreach (var file in files)
+                {
+                    audioPathsShort.Add(file);
+                    audioPathsFull.Add(file);
+                    audioList.Items.Add(file);
+                }
+            }
+        }
+
+        private void OpenPlaylistMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }

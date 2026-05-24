@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:Audioplayer"
         mc:Ignorable="d"
         Title="MainWindow" Height="500" Width="800">
-    <Grid>
+    <Grid PreviewDragOver="Grid_PreviewDragOver">
         <Grid.RowDefinitions>
-            <RowDefinition Height="347*"></RowDefinition>
+            <RowDefinition Height="87*"></RowDefinition>
             <RowDefinition Height="20"></RowDefinition>
             <RowDefinition Height="87*"></RowDefinition>
         </Grid.RowDefinitions>
@@ -19,18 +19,31 @@
         </Grid.ColumnDefinitions>
         <Button Content="Открыть" x:Name="chooseFile" Grid.Column="0" Grid.Row="0" Click="chooseFile_Click" Margin="10,272,10,10" />
         <TextBlock Grid.Column="1" Grid.Row="0" x:Name="headerBlock" TextWrapping="WrapWithOverflow" Margin="40,0,40,0" />
-        <Slider x:Name="slider" Grid.Row="1" Grid.ColumnSpan="3" Value="0" Minimum="0" Maximum="100" SelectionStart="0" Height="30" 
-        IsSelectionRangeEnabled="True" ValueChanged="Slider_ValueChanged" Margin="20,0,20,0" />
         
-        <Button Grid.Column="0" Grid.Row="2" Content="Воспроизвести" Click="Play_Click" Margin="10,10,10,10" />
-        <Button Grid.Column="1" Grid.Row="2" Content="Пауза" Click="Pause_Click" Margin="10,10,10,10"/>
-        <Button Content="Стоп" Grid.Column="2" Grid.Row="2" Click="Stop_Click" Margin="10,10,10,10" />
-        <ListBox x:Name="audioList" Grid.Column="2" Grid.Row="0" SelectionChanged="audioList_SelectionChanged" Panel.ZIndex="-1" IsManipulationEnabled="True" ScrollViewer.CanContentScroll="True">
+        <Slider x:Name="slider" Grid.Row="2" Grid.ColumnSpan="3" Value="0" Minimum="0" Maximum="100" SelectionStart="0" Height="30" 
+        IsSelectionRangeEnabled="True" ValueChanged="slider_ValueChanged" Margin="20,0,20,0" />
+        
+        <ListBox x:Name="audioList" Grid.Column="2" Grid.Row="0" SelectionChanged="audioList_SelectionChanged" Panel.ZIndex="-1" IsManipulationEnabled="True" ScrollViewer.CanContentScroll="True" PreviewDragOver="audioList_PreviewDragOver" PreviewDrop="audioList_PreviewDrop" Drop="audioList_Drop" AllowDrop="True">
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem x:Name="delete" Header="Удалить" Click="Delete" IsManipulationEnabled="True" />
                 </ContextMenu>
             </ListBox.ContextMenu>
         </ListBox>
+
+        <Button Grid.Column="0" Grid.Row="3" Content="Воспроизвести" Click="Play_Click" Margin="10,10,10,10" />
+        <Button Grid.Column="1" Grid.Row="3" Content="Пауза" Click="Pause_Click" Margin="10,10,10,10"/>
+        <Button Content="Стоп" Grid.Column="2" Grid.Row="3" Click="Stop_Click" Margin="10,10,10,10" />
+        <Menu Height="25" VerticalAlignment="Top">
+            <MenuItem Header="Файл">
+                <MenuItem Header="Открыть" Click="chooseFile_Click"/>
+                <MenuItem Header="Закрыть"/>
+            </MenuItem>
+            <MenuItem Header="Плейлист">
+                <MenuItem Header="Открыть" Click="OpenPlaylistMenuItem_Click"/>
+                <MenuItem Header="Закрыть"/>
+            </MenuItem>
+        </Menu>
+
     </Grid>
 </Window>
