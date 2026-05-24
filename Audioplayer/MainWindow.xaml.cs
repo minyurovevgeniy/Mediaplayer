@@ -50,7 +50,6 @@ namespace Audioplayer
             mediaPlayer.MediaOpened += MediaPlayer_MediaOpened;
             mediaPlayer.MediaEnded += MediaPlayer_MediaEnded;
             mediaPlayer.MediaFailed += MediaPlayer_MediaFailed;
-            totalSeconds = 0;
         }
 
         private async void MediaPlayer_MediaOpened(object? sender, EventArgs e)
@@ -227,7 +226,12 @@ namespace Audioplayer
 
         private void OpenPlaylistMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Audiofile>));
+            using (StreamReader reader = new StreamReader("playlist.xml"))
+            {
+                audiofiles = (List<Audiofile>)serializer.Deserialize(reader);
+            }
         }
 
         public void SavePlaylistMenuItem_Click(object sender, RoutedEventArgs e)
