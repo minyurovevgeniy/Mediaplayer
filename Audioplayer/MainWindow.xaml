@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Audioplayer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="800">
+        Title="Аудиоплеер" Height="500" Width="800">
     <Grid PreviewDragOver="Grid_PreviewDragOver">
         <Grid.RowDefinitions>
             <RowDefinition Height="87*"></RowDefinition>
@@ -19,9 +19,11 @@
         </Grid.ColumnDefinitions>
         <Button Content="Открыть" x:Name="chooseFile" Grid.Column="0" Grid.Row="0" Click="chooseFile_Click" Margin="10,272,10,10" />
         <TextBlock Grid.Column="1" Grid.Row="0" x:Name="headerBlock" TextWrapping="WrapWithOverflow" Margin="40,0,40,0" />
-        
-        <Slider x:Name="slider" Grid.Row="2" Grid.ColumnSpan="3" Value="0" Minimum="0" Maximum="100" SelectionStart="0" Height="30" 
-        IsSelectionRangeEnabled="True" ValueChanged="slider_ValueChanged" Margin="20,0,20,0" />
+
+        <Slider x:Name="positionSlider" Grid.Row="1" Grid.ColumnSpan="3" Value="0" Minimum="0" Maximum="100" SelectionStart="0" Height="30" 
+        IsSelectionRangeEnabled="True" ValueChanged="slider_ValueChanged" Margin="20,0,20,0"
+                Thumb.DragStarted="PositionSlider_DragStarted"
+                Thumb.DragCompleted="PositionSlider_DragCompleted"/>
         
         <ListBox x:Name="audioList" Grid.Column="2" Grid.Row="0" SelectionChanged="audioList_SelectionChanged" Panel.ZIndex="-1" IsManipulationEnabled="True" ScrollViewer.CanContentScroll="True" PreviewDragOver="audioList_PreviewDragOver" PreviewDrop="audioList_PreviewDrop" Drop="audioList_Drop" AllowDrop="True">
             <ListBox.ContextMenu>

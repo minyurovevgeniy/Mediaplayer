@@ -40,7 +40,8 @@ namespace Audioplayer
         private MediaPlayer mediaPlayer;
         
         double totalTime;
-        
+
+        private bool isUserDraggingSlider = false;
 
         public MainWindow()
         {
@@ -55,11 +56,15 @@ namespace Audioplayer
 
         private async void MediaPlayer_MediaOpened(object? sender, EventArgs e)
         {
+            if (mediaPlayer.NaturalDuration.HasTimeSpan)
+                positionSlider.Maximum = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+            /*
             totalTime = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds + mediaPlayer.NaturalDuration.TimeSpan.TotalMinutes * 60;
             //double TotalMilliseconds = mediaPlayer.NaturalDuration.TimeSpan.TotalMilliseconds;
             slider.Minimum = 0;
             slider.Maximum = (int)totalTime;
             slider.Value = 0;
+            */
         }
 
 
@@ -77,8 +82,8 @@ namespace Audioplayer
         {
             this.Dispatcher.Invoke(() =>
             {
-                slider.Value = mediaPlayer.Position.Seconds + mediaPlayer.Position.Minutes * 60;
-                headerBlock.Text = slider.Value.ToString();
+                positionSlider.Value = mediaPlayer.Position.Seconds + mediaPlayer.Position.Minutes * 60;
+                headerBlock.Text = positionSlider.Value.ToString();
             });
         }
         // начало воспроизведения
@@ -88,14 +93,28 @@ namespace Audioplayer
 
             mediaPlayer.Open(new Uri(audiofiles[selectedIndex].path, UriKind.RelativeOrAbsolute));
             mediaPlayer.Play();
-
+            /*
             aTimer = new System.Timers.Timer(1000);
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += CurrentPosition;
             aTimer.AutoReset = true;
             aTimer.Enabled = true;
-
+            */
+            var timer = new System.Windows.Threading.DispatcherTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(100);
+            timer.Tick += Timer_Tick;
+            timer.Start();
             headerBlock.Text = audiofiles[selectedIndex].name;
+        }
+
+        // Обновление слайдера во времени
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            if (!isUserDraggingSlider && mediaPlayer.NaturalDuration.HasTimeSpan)
+            {
+                positionSlider.Maximum = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+                positionSlider.Value = mediaPlayer.Position.TotalSeconds;
+            }
         }
 
         private static void OnTimedEvent(Object source, ElapsedEventArgs e)
@@ -123,7 +142,7 @@ namespace Audioplayer
         // окончание воспроизведения
         void Media_MediaEnded(object sender, RoutedEventArgs e)
         {
-
+            positionSlider.Value = 0;
         }
 
         private void chooseFile_Click(object sender, RoutedEventArgs e)
@@ -182,7 +201,23 @@ namespace Audioplayer
 
         private void slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            if (!isUserDraggingSlider)
+            {
+                // Обновляем только при программном изменении
+            }
+        }
 
+        // При начале перетаскивания слайдера
+        private void PositionSlider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
+        {
+            isUserDraggingSlider = true;
+        }
+
+        // При завершении перетаскивания
+        private void PositionSlider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            isUserDraggingSlider = false;
+            mediaPlayer.Position = TimeSpan.FromSeconds(positionSlider.Value);
         }
 
         private void Grid_PreviewDragOver(object sender, DragEventArgs e)
